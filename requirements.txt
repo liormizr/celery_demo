@@ -1,0 +1,5 @@
+celery==3.1.17
+flower==0.8.4
+kombu==3.0.34
+redis==2.10.5
+supervisor==3.2.2
