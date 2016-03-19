@@ -43,4 +43,4 @@ def apply_async_workflow(workflow_cycle_count, operation_concurrent_count):
 
 
 def monitor(async_workflow_result):
-    pass
+    print('See Flower http://localhost:5555')

@@ -180,17 +180,22 @@ class OperationTask(CeleryDemoTask):
         :type index: int
         :param ctx: workflow state
         :type ctx: dict
-        :return: ?
         """
-        general_workflow_index = ctx['workflow_count'] - 1 + index
-        for progress in xrange(self.TOTAL_PROGRESS_INTERVALS):
-            self.update_state(
-                state='PROGRESS' if not self.is_aborted() else ABORTED,
-                meta={
-                    'progress': progress,
-                    'total': self.TOTAL_PROGRESS_INTERVALS,
-                    'index': general_workflow_index
-                })
-            sleep(1)
+        try:
+            general_workflow_index = ctx['workflow_count'] - 1 + index
+            for progress in xrange(self.TOTAL_PROGRESS_INTERVALS):
+                self.update_state(
+                    state='PROGRESS' if not self.is_aborted() else ABORTED,
+                    meta={
+                        'progress': progress,
+                        'total': self.TOTAL_PROGRESS_INTERVALS,
+                        'index': general_workflow_index
+                    })
+                sleep(1)
+        except:
+            raise self.retry(
+                kwargs={'index': index, 'ctx': ctx},
+                countdown=60,
+                max_retries=3)
         return {'index': index, 'ctx': ctx}
 operation_task = OperationTask()
