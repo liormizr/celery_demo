@@ -35,12 +35,6 @@ def create_workflow_task(self, ctx):
     assert ctx['workflow_cycle_count'] > 0, 'workflow_cycle_count have to be bigger then 0'
     assert ctx['operation_concurrent_count'] > 0, 'operation_concurrent_count have to be bigger then 0'
 
-    def workflow_next_id():
-        return '{name}_{index}_{id}'.format(
-            name=self.id.split('_')[0],
-            index=ctx['workflow_count'],
-            id=uuid4())
-
     logger.info('creating workflow')
     ctx.setdefault('workflow_count', 0)
     ctx['workflow_count'] += 1
@@ -49,9 +43,7 @@ def create_workflow_task(self, ctx):
         logger.info('need to repeat workflow')
         chord_callback_tasks = chain(
             operation_summery_task.subtask((), {'ctx': ctx}),
-            cleanup_task.subtask(()),
-            create_workflow_task.subtask((), task_id=workflow_next_id()),
-        )
+            create_workflow_task.subtask())
     else:
         logger.info('do not need to repeat workflow')
         chord_callback_tasks = chain(
@@ -81,6 +73,7 @@ def operation_summery_task(self, operation_tasks_results, ctx):
         logger.info('workflow is canceled or aborted... stopping')
         return ctx
 
+    sleep(1)
     logger.info('doing summery')
     return ctx
 
@@ -88,6 +81,7 @@ def operation_summery_task(self, operation_tasks_results, ctx):
 @app.task
 def cleanup_task(ctx):
     logger.info('Doing cleanup...')
+    sleep(1)
     return ctx
 
 
@@ -171,7 +165,7 @@ class CeleryDemoTask(AbortableTask):
 
 
 class OperationTask(CeleryDemoTask):
-    name = 'operation_task'
+    name = '.'.join((__name__, 'operation_task'))
     TOTAL_PROGRESS_INTERVALS = 10
 
     def run(self, index, ctx):
@@ -181,6 +175,8 @@ class OperationTask(CeleryDemoTask):
         :param ctx: workflow state
         :type ctx: dict
         """
+        logger.info('Starting operation with args: index - {0}, ctx - {1}'.
+                    format(index, ctx))
         try:
             general_workflow_index = ctx['workflow_count'] - 1 + index
             for progress in xrange(self.TOTAL_PROGRESS_INTERVALS):
@@ -192,7 +188,10 @@ class OperationTask(CeleryDemoTask):
                         'index': general_workflow_index
                     })
                 sleep(1)
+                logger.info('in progress: {0}/{1}'.format(
+                    progress, self.TOTAL_PROGRESS_INTERVALS))
         except:
+            logger.exception('ERROR?')
             raise self.retry(
                 kwargs={'index': index, 'ctx': ctx},
                 countdown=60,

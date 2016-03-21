@@ -23,15 +23,15 @@ DEFAULT_QUEUE_NAME = DEFAULT_ROUTING_KEY = DEFAULT_EXCHANGE = 'default'
 
 # Celery tasks per queue
 INGEST_QUEUE_TASKS = (
-    'validate_system_task',
+    'celery_demo.tasks.validate_system_task',
 )
 OPERATION_QUEUE_TASKS = (
-    'operation_task',
+    'celery_demo.tasks.operation_task',
 )
 DEFAULT_QUEUE_TASKS = (
-    'create_workflow_task',
-    'operation_summery_task',
-    'cleanup_task',
+    'celery_demo.tasks.create_workflow_task',
+    'celery_demo.tasks.operation_summery_task',
+    'celery_demo.tasks.cleanup_task',
 )
 
 

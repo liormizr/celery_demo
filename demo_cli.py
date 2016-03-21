@@ -11,8 +11,12 @@ def main():
     workflow_async_result = apply_async_workflow(
         args.workflow_cycle_count,
         args.operation_concurrent_count)
+
     if args.monitor:
-        monitor(workflow_async_result)
+        monitor(
+            workflow_async_result,
+            args.workflow_cycle_count,
+            args.operation_concurrent_count)
 
 
 def parser_command_line_args():
