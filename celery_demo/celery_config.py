@@ -50,7 +50,7 @@ class CeleryDemoRouter(object):
             return {'exchange': DEFAULT_EXCHANGE, 'routing_key': OPERATION_ROUTING_KEY}
         if task in DEFAULT_QUEUE_TASKS:
             return {'exchange': DEFAULT_EXCHANGE, 'routing_key': DEFAULT_ROUTING_KEY}
-        return {'exchange': DEFAULT_EXCHANGE, 'routing_key': DEFAULT_ROUTING_KEY}
+        raise Exception('Unknown task {0}'.format(task))
 
 
 app = Celery('celery_demo')

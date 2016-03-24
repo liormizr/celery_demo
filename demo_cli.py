@@ -1,3 +1,4 @@
+import sys
 from argparse import ArgumentParser
 
 from celery_demo.commands import purge, apply_async_workflow, monitor
@@ -49,4 +50,4 @@ def parser_command_line_args():
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
