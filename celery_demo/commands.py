@@ -47,6 +47,8 @@ def monitor(
         async_workflow_result,
         workflow_cycle_count,
         operation_concurrent_count):
+    print('check out event monitoring with: '
+          'celery -A celery_demo.celery_config events')
     print('See Flower http://localhost:5555')
     print('total operations count = {0} '
           '(workflow-cycles[{1}] * operation-concurrent[{2}])'.format(
@@ -59,7 +61,7 @@ def monitor(
         * operation_concurrent_count
         * OperationTask.TOTAL_PROGRESS_INTERVALS)
 
-    for cycle in xrange(workflow_cycle_count):
+    for _ in xrange(workflow_cycle_count):
         workflow = async_workflow_result.get()['workflow']
         while workflow.status in ('PENDING', 'RECEIVED', 'STARTED'):
             progress = check_operations_progress(
