@@ -8,10 +8,17 @@ We can see here 4 methods to create a celery task
 """
 from uuid import uuid4
 from time import sleep
-from celery import chain, chord
+
+from celery import Celery, chain, chord
+from celery.utils.log import get_task_logger
 from celery.contrib.abortable import AbortableTask, ABORTED
 
-from .celery_config import app, logger
+from .celery_config import load_configurations
+
+celery_app_name = 'celery_demo'
+logger = get_task_logger(celery_app_name)
+app = Celery(celery_app_name)
+load_configurations(app)
 
 
 # Basic task creation
@@ -198,3 +205,22 @@ class OperationTask(CeleryDemoTask):
                 max_retries=3)
         return {'index': index, 'ctx': ctx}
 operation_task = OperationTask()
+
+
+@app.task
+def create_new_maze():
+    from .maze import GameBoard, Maze
+    game_board = GameBoard(game=Maze())
+    game_board.draw_game()
+    return game_board
+
+
+@app.task
+def solve_maze(game_board):
+    from .maze import Player
+    player = Player(game_board)
+    player.reset_player()
+    player.draw_player()
+    player.solve_game()
+
+
